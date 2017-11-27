@@ -227,6 +227,7 @@ namespace mRemoteNG.UI.Forms
 
         private void PromptForUpdatesPreference()
         {
+#if FALSE
             if (Settings.Default.CheckForUpdatesAsked) return;
             string[] commandButtons =
             {
@@ -249,10 +250,12 @@ namespace mRemoteNG.UI.Forms
             {
                 optionsForm.ShowDialog(this);
             }
+#endif
         }
 
         private void CheckForUpdates()
         {
+#if FALSE
             if (!Settings.Default.CheckForUpdatesOnStartup) return;
 
             var nextUpdateCheck = Convert.ToDateTime(
@@ -263,6 +266,7 @@ namespace mRemoteNG.UI.Forms
             if (!IsHandleCreated) CreateHandle(); // Make sure the handle is created so that InvokeRequired returns the correct result
 
             Startup.Instance.CheckForUpdate();
+#endif
         }
 
         private void frmMain_FormClosing(object sender, FormClosingEventArgs e)
@@ -308,17 +312,17 @@ namespace mRemoteNG.UI.Forms
 									
 			Debug.Print("[END] - " + Convert.ToString(DateTime.Now, CultureInfo.InvariantCulture));
 		}
-        #endregion
+#endregion
 								
-        #region Timer
+#region Timer
 		private void tmrAutoSave_Tick(object sender, EventArgs e)
 		{
             Runtime.MessageCollector.AddMessage(MessageClass.DebugMsg, "Doing AutoSave");
 			Runtime.ConnectionsService.SaveConnectionsAsync();
 		}
-        #endregion
+#endregion
 		
-        #region Window Overrides and DockPanel Stuff
+#region Window Overrides and DockPanel Stuff
         private void frmMain_ResizeBegin(object sender, EventArgs e)
 		{
 			_inSizeMove = true;
@@ -529,9 +533,9 @@ namespace mRemoteNG.UI.Forms
 			tabController.SelectedIndex = newIndex;
 		}
 #endif
-        #endregion
+#endregion
 		
-        #region Screen Stuff
+#region Screen Stuff
         public void SetDefaultLayout()
         {
             pnlDock.Visible = false;
@@ -551,9 +555,9 @@ namespace mRemoteNG.UI.Forms
 
             pnlDock.Visible = true;
         }
-        #endregion
+#endregion
 
-        #region Events
+#region Events
         public delegate void ClipboardchangeEventHandler();
         public static event ClipboardchangeEventHandler ClipboardChanged
         {
@@ -566,7 +570,7 @@ namespace mRemoteNG.UI.Forms
                 _clipboardChangedEvent = (ClipboardchangeEventHandler)Delegate.Remove(_clipboardChangedEvent, value);
             }
         }
-        #endregion
+#endregion
 
         private void ViewMenu_Opening(object sender, EventArgs e)
         {

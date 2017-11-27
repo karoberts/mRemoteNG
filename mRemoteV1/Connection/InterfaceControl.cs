@@ -22,6 +22,7 @@ namespace mRemoteNG.Connection
                 Parent = parent;
                 Location = new Point(0, 0);
                 Size = Parent.Size;
+                BackColor = Color.Black;
                 Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Top;
 				InitializeComponent();
 			}

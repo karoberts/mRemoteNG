@@ -42,7 +42,8 @@ namespace mRemoteNG.Connection.Protocol.RDP
             private set
 			{
 				_rdpClient.AdvancedSettings2.SmartSizing = value;
-				ReconnectForResize();
+                DoResize();
+                ReconnectForResize();
 			}
 		}
 		
@@ -184,6 +185,7 @@ namespace mRemoteNG.Connection.Protocol.RDP
 			{
 				_rdpClient.Connect();
 				base.Connect();
+                DoResize();
 				return true;
 			}
 			catch (Exception ex)
@@ -275,7 +277,7 @@ namespace mRemoteNG.Connection.Protocol.RDP
         #region Private Methods
 		private bool DoResize()
 		{
-			Control.Location = InterfaceControl.Location;
+            /*Control.Location = InterfaceControl.Location;
 			if (!(Control.Size == InterfaceControl.Size) && !(InterfaceControl.Size == Size.Empty)) // kmscode - this doesn't look right to me. But I'm not aware of any functionality issues with this currently...
 			{
 				Control.Size = InterfaceControl.Size;
@@ -285,7 +287,37 @@ namespace mRemoteNG.Connection.Protocol.RDP
 			{
 				return false;
 			}
+            */
+            return DoResize_KR();
 		}
+
+        private bool DoResize_KR()
+        {
+            if (!SmartSize)
+            {
+                Control.Size = InterfaceControl.Size;
+                Control.Location = InterfaceControl.Location;
+                return true;
+            }
+
+            var resolution = GetResolutionRectangle(_connectionInfo.Resolution);
+            double ratioW = InterfaceControl.Parent.Size.Width / (double)resolution.Width;
+            double ratioH = InterfaceControl.Parent.Size.Height / (double)resolution.Height;
+
+            double scale = Math.Min(ratioW, ratioH);
+
+            if (scale > 1.0d)
+                return true;
+
+            Control.Size = new Size((int)(resolution.Width * scale), (int)(resolution.Height * scale));
+
+            var parentRect = Control.Parent.ClientRectangle;
+
+            Control.Left = (parentRect.Width - Control.Width) / 2;
+            Control.Top = (parentRect.Height - Control.Height) / 2;
+
+            return true;
+        }
 				
 		private void ReconnectForResize()
 		{
@@ -509,6 +541,7 @@ namespace mRemoteNG.Connection.Protocol.RDP
 					var resolution = GetResolutionRectangle(_connectionInfo.Resolution);
 					_rdpClient.DesktopWidth = resolution.Width;
 					_rdpClient.DesktopHeight = resolution.Height;
+                    SmartSize = true;
 				}
 			}
 			catch (Exception ex)

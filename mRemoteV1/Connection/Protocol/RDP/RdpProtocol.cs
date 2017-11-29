@@ -300,6 +300,9 @@ namespace mRemoteNG.Connection.Protocol.RDP
                 return true;
             }
 
+            if (Control.FindForm().WindowState == FormWindowState.Minimized)
+                return true;
+
             var resolution = GetResolutionRectangle(_connectionInfo.Resolution);
             double ratioW = InterfaceControl.Parent.Size.Width / (double)resolution.Width;
             double ratioH = InterfaceControl.Parent.Size.Height / (double)resolution.Height;
@@ -527,8 +530,6 @@ namespace mRemoteNG.Connection.Protocol.RDP
 				    {
                         _rdpClient.AdvancedSettings2.SmartSizing = true;
                     }
-
-                    
 				}
 				else if (InterfaceControl.Info.Resolution == RDPResolutions.Fullscreen)
 				{

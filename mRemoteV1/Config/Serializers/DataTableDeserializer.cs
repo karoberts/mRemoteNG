@@ -84,7 +84,7 @@ namespace mRemoteNG.Config.Serializers
             connectionInfo.UseConsoleSession = (bool)dataRow["ConnectToConsole"];
             connectionInfo.UseCredSsp = (bool)dataRow["UseCredSsp"];
             connectionInfo.RenderingEngine = (HTTPBase.RenderingEngine)Enum.Parse(typeof(HTTPBase.RenderingEngine), (string)dataRow["RenderingEngine"]);
-            connectionInfo.ICAEncryptionStrength = (IcaProtocol.EncryptionStrength)Enum.Parse(typeof(IcaProtocol.EncryptionStrength), (string)dataRow["ICAEncryptionStrength"]);
+            //connectionInfo.ICAEncryptionStrength = (IcaProtocol.EncryptionStrength)Enum.Parse(typeof(IcaProtocol.EncryptionStrength), (string)dataRow["ICAEncryptionStrength"]);
             connectionInfo.RDPAuthenticationLevel = (RdpProtocol.AuthenticationLevel)Enum.Parse(typeof(RdpProtocol.AuthenticationLevel), (string)dataRow["RDPAuthenticationLevel"]);
             connectionInfo.RDPMinutesToIdleTimeout = (int)dataRow["RDPMinutesToIdleTimeout"];
             connectionInfo.RDPAlertIdleTimeout = (bool)dataRow["RDPAlertIdleTimeout"];

@@ -69,7 +69,7 @@ namespace mRemoteNG.Config.Serializers
             element.Add(new XAttribute("ConnectToConsole", connectionInfo.UseConsoleSession.ToString()));
             element.Add(new XAttribute("UseCredSsp", connectionInfo.UseCredSsp.ToString()));
             element.Add(new XAttribute("RenderingEngine", connectionInfo.RenderingEngine));
-            element.Add(new XAttribute("ICAEncryptionStrength", connectionInfo.ICAEncryptionStrength));
+            //element.Add(new XAttribute("ICAEncryptionStrength", connectionInfo.ICAEncryptionStrength));
             element.Add(new XAttribute("RDPAuthenticationLevel", connectionInfo.RDPAuthenticationLevel));
             element.Add(new XAttribute("RDPMinutesToIdleTimeout", connectionInfo.RDPMinutesToIdleTimeout));
             element.Add(new XAttribute("RDPAlertIdleTimeout", connectionInfo.RDPAlertIdleTimeout));

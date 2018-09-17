@@ -29,7 +29,7 @@ namespace mRemoteNG.Connection
         private string _extApp;
         private int _port;
         private string _puttySession;
-        private IcaProtocol.EncryptionStrength _icaEncryption;
+        //private IcaProtocol.EncryptionStrength _icaEncryption;
         private bool _useConsoleSession;
         private RdpProtocol.AuthenticationLevel _rdpAuthenticationLevel;
         private int _rdpMinutesToIdleTimeout;
@@ -199,6 +199,7 @@ namespace mRemoteNG.Connection
             set { SetField(ref _puttySession, value, "PuttySession"); }
         }
 
+        /*
         [LocalizedAttributes.LocalizedCategory("strCategoryProtocol", 3),
             LocalizedAttributes.LocalizedDisplayName("strPropertyNameEncryptionStrength"),
             LocalizedAttributes.LocalizedDescription("strPropertyDescriptionEncryptionStrength"),
@@ -207,7 +208,7 @@ namespace mRemoteNG.Connection
         {
             get { return GetPropertyValue("ICAEncryptionStrength", _icaEncryption); }
             set { SetField(ref _icaEncryption, value, "ICAEncryptionStrength"); }
-        }
+        }*/
 
         [LocalizedAttributes.LocalizedCategory("strCategoryProtocol", 3),
             LocalizedAttributes.LocalizedDisplayName("strPropertyNameUseConsoleSession"),

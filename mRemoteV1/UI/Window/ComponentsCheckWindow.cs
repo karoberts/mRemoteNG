@@ -4,7 +4,7 @@ using System.Drawing;
 using System.IO;
 using System.Threading;
 using AxMSTSCLib;
-using AxWFICALib;
+//using AxWFICALib;
 using Gecko;
 using mRemoteNG.App;
 using mRemoteNG.App.Info;
@@ -571,7 +571,7 @@ namespace mRemoteNG.UI.Window
 
         private void CheckIca()
         {
-            pnlCheck4.Visible = true;
+            /*pnlCheck4.Visible = true;
             
             try
             {
@@ -595,7 +595,7 @@ namespace mRemoteNG.UI.Window
 
                 Runtime.MessageCollector.AddMessage(MessageClass.WarningMsg, "ICA " + Language.strCcNotInstalledProperly, true);
                 Runtime.MessageCollector.AddMessage(MessageClass.ErrorMsg, ex.Message, true);
-            }
+            }*/
         }
 
         private void CheckGeckoBrowser()

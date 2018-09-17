@@ -385,7 +385,7 @@ namespace mRemoteNG.Config.Serializers
 
                 if (_confVersion >= 1.6)
                 {
-                    connectionInfo.ICAEncryptionStrength = (IcaProtocol.EncryptionStrength)MiscTools.StringToEnum(typeof(IcaProtocol.EncryptionStrength), xmlnode.Attributes["ICAEncryptionStrength"].Value);
+                    //connectionInfo.ICAEncryptionStrength = (IcaProtocol.EncryptionStrength)MiscTools.StringToEnum(typeof(IcaProtocol.EncryptionStrength), xmlnode.Attributes["ICAEncryptionStrength"].Value);
                     connectionInfo.Inheritance.ICAEncryptionStrength = bool.Parse(xmlnode.Attributes["InheritICAEncryptionStrength"].Value);
                     connectionInfo.PreExtApp = xmlnode.Attributes["PreExtApp"].Value;
                     connectionInfo.PostExtApp = xmlnode.Attributes["PostExtApp"].Value;

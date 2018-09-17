@@ -105,7 +105,7 @@ namespace mRemoteNG.Config.Serializers
                         Convert.ToString(con.UseConsoleSession) + ";" + 
                         Convert.ToString(con.UseCredSsp) + ";" + 
                         con.RenderingEngine + ";" + 
-                        con.ICAEncryptionStrength + ";" + 
+                        //con.ICAEncryptionStrength + ";" + 
                         con.RDPAuthenticationLevel + ";" + 
                         con.LoadBalanceInfo + ";" + 
                         con.Colors + ";" + 

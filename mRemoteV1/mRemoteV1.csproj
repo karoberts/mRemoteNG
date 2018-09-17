@@ -1497,26 +1497,10 @@
       <WrapperTool>aximp</WrapperTool>
       <Isolated>False</Isolated>
     </COMReference>
-    <COMReference Include="AxWFICALib">
-      <Guid>{238F6F80-B8B4-11CF-8771-00A024541EE3}</Guid>
-      <VersionMajor>2</VersionMajor>
-      <VersionMinor>7</VersionMinor>
-      <Lcid>0</Lcid>
-      <WrapperTool>aximp</WrapperTool>
-      <Isolated>False</Isolated>
-    </COMReference>
     <COMReference Include="MSTSCLib">
       <Guid>{8C11EFA1-92C3-11D1-BC1E-00C04FA31489}</Guid>
       <VersionMajor>1</VersionMajor>
       <VersionMinor>0</VersionMinor>
-      <Lcid>0</Lcid>
-      <WrapperTool>tlbimp</WrapperTool>
-      <Isolated>False</Isolated>
-    </COMReference>
-    <COMReference Include="WFICALib">
-      <Guid>{238F6F80-B8B4-11CF-8771-00A024541EE3}</Guid>
-      <VersionMajor>2</VersionMajor>
-      <VersionMinor>7</VersionMinor>
       <Lcid>0</Lcid>
       <WrapperTool>tlbimp</WrapperTool>
       <Isolated>False</Isolated>
@@ -1529,7 +1513,7 @@
     <PostBuildEvent>:: When passing paths to powershell scripts, check if the path ends with a backslash "\"
 :: If it does, then the backslash may be interpreted as an escape character. Add another backslash to cancel the first one.
 
-powershell -noprofile -command "sleep 2"
+:: powershell -noprofile -command "sleep 2"
 set /p buildenv=&lt;buildenv.tmp
 set solutionDir=$(SolutionDir)\
 set targetDir=%25cd%25
@@ -1538,7 +1522,7 @@ set certPath=$(CertPath)
 set certPassword=$(CertPassword)
 
 :: Call the post build powershell script
-powershell.exe -ExecutionPolicy Bypass -File "%25psScriptsDir%25\postbuild_mremotev1.ps1" -SolutionDir "%25solutionDir%25" -TargetDir "%25targetDir%25" -TargetFileName "mRemoteNG.exe" -ConfigurationName "%25buildenv%25" -CertificatePath "%25certPath%25" -CertificatePassword "%25certPassword%25" -ExcludeFromSigning "PuTTYNG.exe"</PostBuildEvent>
+:: powershell.exe -ExecutionPolicy Bypass -File "%25psScriptsDir%25\postbuild_mremotev1.ps1" -SolutionDir "%25solutionDir%25" -TargetDir "%25targetDir%25" -TargetFileName "mRemoteNG.exe" -ConfigurationName "%25buildenv%25" -CertificatePath "%25certPath%25" -CertificatePassword "%25certPassword%25" -ExcludeFromSigning "PuTTYNG.exe"</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>

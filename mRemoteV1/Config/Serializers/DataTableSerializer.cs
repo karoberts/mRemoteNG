@@ -219,7 +219,7 @@ namespace mRemoteNG.Config.Serializers
             dataRow["ConnectToConsole"] = connectionInfo.UseConsoleSession;
             dataRow["UseCredSsp"] = connectionInfo.UseCredSsp;
             dataRow["RenderingEngine"] = connectionInfo.RenderingEngine;
-            dataRow["ICAEncryptionStrength"] = connectionInfo.ICAEncryptionStrength;
+            //dataRow["ICAEncryptionStrength"] = connectionInfo.ICAEncryptionStrength;
             dataRow["RDPAuthenticationLevel"] = connectionInfo.RDPAuthenticationLevel;
             dataRow["RDPMinutesToIdleTimeout"] = connectionInfo.RDPMinutesToIdleTimeout;
             dataRow["RDPAlertIdleTimeout"] = connectionInfo.RDPAlertIdleTimeout;

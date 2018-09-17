@@ -2,7 +2,7 @@ using System;
 using System.Threading;
 using System.Timers;
 using System.Windows.Forms;
-using AxWFICALib;
+//using AxWFICALib;
 using mRemoteNG.App;
 using mRemoteNG.Connection.Protocol.RDP;
 using mRemoteNG.Messages;
@@ -15,7 +15,7 @@ namespace mRemoteNG.Connection.Protocol.ICA
 {
 	public class IcaProtocol : ProtocolBase
 	{
-		private AxICAClient _icaClient;
+		/*private AxICAClient _icaClient;
 		private ConnectionInfo _info;
         private readonly FrmMain _frmMain = FrmMain.Default;
 		
@@ -344,5 +344,6 @@ namespace mRemoteNG.Connection.Protocol.ICA
             Encr128Bit = 128
 		}
         #endregion
+*/
 	}
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
@@ -13,6 +14,7 @@ using mRemoteNG.App.Info;
 using mRemoteNG.App.Initialization;
 using mRemoteNG.Config;
 using mRemoteNG.Config.Connections;
+using mRemoteNG.Config.DataProviders;
 using mRemoteNG.Config.Putty;
 using mRemoteNG.Config.Settings;
 using mRemoteNG.Connection;
@@ -21,6 +23,7 @@ using mRemoteNG.Messages.MessageWriters;
 using mRemoteNG.Themes;
 using mRemoteNG.Tools;
 using mRemoteNG.UI.Menu;
+using mRemoteNG.UI.Panels;
 using mRemoteNG.UI.TaskDialog;
 using mRemoteNG.UI.Window;
 using WeifenLuo.WinFormsUI.Docking;
@@ -29,7 +32,7 @@ using WeifenLuo.WinFormsUI.Docking;
 
 namespace mRemoteNG.UI.Forms
 {
-	public partial class FrmMain
+    public partial class FrmMain
     {
         public static FrmMain Default { get; } = new FrmMain();
 
@@ -44,6 +47,7 @@ namespace mRemoteNG.UI.Forms
         private ConnectionInfo _selectedConnection;
         private readonly IList<IMessageWriter> _messageWriters = new List<IMessageWriter>();
         private readonly ThemeManager _themeManager;
+        private readonly FileBackupPruner _backupPruner = new FileBackupPruner();
 
         internal FullscreenHandler Fullscreen { get; set; }
         
@@ -64,10 +68,6 @@ namespace mRemoteNG.UI.Forms
             _screenSystemMenu = new ScreenSelectionSystemMenu(this);
         }
 
-        static FrmMain()
-        {
-        }
-
         #region Properties
         public FormWindowState PreviousWindowState { get; set; }
 
@@ -75,8 +75,8 @@ namespace mRemoteNG.UI.Forms
 
         public bool AreWeUsingSqlServerForSavingConnections
 		{
-			get { return _usingSqlServer; }
-			set
+			get => _usingSqlServer;
+            set
 			{
 				if (_usingSqlServer == value)
 				{
@@ -89,8 +89,8 @@ namespace mRemoteNG.UI.Forms
 		
         public string ConnectionsFileName
 		{
-			get { return _connectionsFileName; }
-			set
+			get => _connectionsFileName;
+            set
 			{
 				if (_connectionsFileName == value)
 				{
@@ -103,8 +103,8 @@ namespace mRemoteNG.UI.Forms
 		
         public bool ShowFullPathInTitle
 		{
-			get { return _showFullPathInTitle; }
-			set
+			get => _showFullPathInTitle;
+            set
 			{
 				if (_showFullPathInTitle == value)
 				{
@@ -117,8 +117,8 @@ namespace mRemoteNG.UI.Forms
 		
         public ConnectionInfo SelectedConnection
 		{
-			get { return _selectedConnection; }
-			set
+			get => _selectedConnection;
+            set
 			{
 				if (_selectedConnection == value)
 				{
@@ -139,13 +139,17 @@ namespace mRemoteNG.UI.Forms
 
             Startup.Instance.InitializeProgram(messageCollector);
 
-            SetMenuDependencies();
-
-            var settingsLoader = new SettingsLoader(this, messageCollector, _quickConnectToolStrip, _externalToolsToolStrip);
+            msMain.Location = Point.Empty;
+            var settingsLoader = new SettingsLoader(this, messageCollector, _quickConnectToolStrip, _externalToolsToolStrip, _multiSshToolStrip, msMain);
             settingsLoader.LoadSettings();
+
+            SetMenuDependencies();
 
             var uiLoader = new DockPanelLayoutLoader(this, messageCollector);
             uiLoader.LoadPanelsFromXml();
+
+	        LockToolbarPositions(Settings.Default.LockToolbars);
+			Settings.Default.PropertyChanged += OnApplicationSettingChanged;
 
     		_themeManager.ThemeChanged += ApplyTheme; 
 
@@ -157,6 +161,7 @@ namespace mRemoteNG.UI.Forms
                 SetDefaultLayout();
 
             Runtime.ConnectionsService.ConnectionsLoaded += ConnectionsServiceOnConnectionsLoaded;
+            Runtime.ConnectionsService.ConnectionsSaved += ConnectionsServiceOnConnectionsSaved;
             var credsAndConsSetup = new CredsAndConsSetup();
             credsAndConsSetup.LoadCredsAndCons();
 
@@ -170,29 +175,73 @@ namespace mRemoteNG.UI.Forms
 
             _screenSystemMenu.BuildScreenList();
 			SystemEvents.DisplaySettingsChanged += _screenSystemMenu.OnDisplayChanged;
+            ApplyLanguage();
 
             Opacity = 1;
+            //Fix missing general panel at the first run
+            if (Settings.Default.CreateEmptyPanelOnStartUp)
+            {
+                var panelName = !string.IsNullOrEmpty(Settings.Default.StartUpPanelName)
+                    ? Settings.Default.StartUpPanelName
+                    : Language.strNewPanel;
+                new PanelAdder().AddPanel(panelName);
+            }
         }
+
+        private void ApplyLanguage()
+        {
+            fileMenu.ApplyLanguage();
+            viewMenu.ApplyLanguage();
+            toolsMenu.ApplyLanguage();
+            helpMenu.ApplyLanguage();
+        }
+
+        private void OnApplicationSettingChanged(object sender, PropertyChangedEventArgs propertyChangedEventArgs)
+	    {
+		    if (propertyChangedEventArgs.PropertyName != nameof(Settings.LockToolbars))
+				return;
+
+		    LockToolbarPositions(Settings.Default.LockToolbars);
+	    }
+
+	    private void LockToolbarPositions(bool shouldBeLocked)
+	    {
+		    var toolbars = new ToolStrip[] { _quickConnectToolStrip, _multiSshToolStrip, _externalToolsToolStrip, msMain };
+			foreach (var toolbar in toolbars)
+			{
+				toolbar.GripStyle = shouldBeLocked
+					? ToolStripGripStyle.Hidden
+					: ToolStripGripStyle.Visible;
+			}
+		}
 
         private void ConnectionsServiceOnConnectionsLoaded(object sender, ConnectionsLoadedEventArgs connectionsLoadedEventArgs)
         {
             UpdateWindowTitle();
         }
 
+        private void ConnectionsServiceOnConnectionsSaved(object sender, ConnectionsSavedEventArgs connectionsSavedEventArgs)
+        {
+            if (connectionsSavedEventArgs.UsingDatabase)
+                return;
+
+            _backupPruner.PruneBackupFiles(connectionsSavedEventArgs.ConnectionFileName, Settings.Default.BackupFileKeepCount);
+        }
+
         private void SetMenuDependencies()
         {
             var connectionInitiator = new ConnectionInitiator();
-            mainFileMenu1.TreeWindow = Windows.TreeForm;
-            mainFileMenu1.ConnectionInitiator = connectionInitiator;
+            fileMenu.TreeWindow = Windows.TreeForm;
+            fileMenu.ConnectionInitiator = connectionInitiator;
 
-            viewMenu1.TsExternalTools = _externalToolsToolStrip;
-            viewMenu1.TsQuickConnect = _quickConnectToolStrip;
-	        viewMenu1.TsMultiSsh = _multiSshToolStrip;
-            viewMenu1.FullscreenHandler = Fullscreen;
-            viewMenu1.MainForm = this;
+            viewMenu.TsExternalTools = _externalToolsToolStrip;
+            viewMenu.TsQuickConnect = _quickConnectToolStrip;
+	        viewMenu.TsMultiSsh = _multiSshToolStrip;
+            viewMenu.FullscreenHandler = Fullscreen;
+            viewMenu.MainForm = this;
 
-            toolsMenu1.MainForm = this;
-            toolsMenu1.CredentialProviderCatalog = Runtime.CredentialProviderCatalog;
+            toolsMenu.MainForm = this;
+            toolsMenu.CredentialProviderCatalog = Runtime.CredentialProviderCatalog;
 
             _quickConnectToolStrip.ConnectionInitiator = connectionInitiator;
         }
@@ -200,24 +249,20 @@ namespace mRemoteNG.UI.Forms
         //Theming support
         private void SetSchema()
         {
-            if (_themeManager.ThemingActive)
-            {
-                // Persist settings when rebuilding UI
-                this.pnlDock.Theme = _themeManager.ActiveTheme.Theme;
-                ApplyTheme();
-            }
+            if (!_themeManager.ThemingActive) return;
+            // Persist settings when rebuilding UI
+            pnlDock.Theme = _themeManager.ActiveTheme.Theme;
+            ApplyTheme();
         }
         private void ApplyTheme()
 		{
-            if(_themeManager.ThemingActive)
-            {
-                vsToolStripExtender.SetStyle(msMain, _themeManager.ActiveTheme.Version, _themeManager.ActiveTheme.Theme);
-                vsToolStripExtender.SetStyle(_quickConnectToolStrip, _themeManager.ActiveTheme.Version, _themeManager.ActiveTheme.Theme);
-                vsToolStripExtender.SetStyle(_externalToolsToolStrip, _themeManager.ActiveTheme.Version, _themeManager.ActiveTheme.Theme);
-                vsToolStripExtender.SetStyle(_multiSshToolStrip, _themeManager.ActiveTheme.Version, _themeManager.ActiveTheme.Theme);
-                tsContainer.TopToolStripPanel.BackColor = _themeManager.ActiveTheme.ExtendedPalette.getColor("CommandBarMenuDefault_Background");
-            }
-        }
+		    if (!_themeManager.ThemingActive) return;
+		    vsToolStripExtender.SetStyle(msMain, _themeManager.ActiveTheme.Version, _themeManager.ActiveTheme.Theme);
+		    vsToolStripExtender.SetStyle(_quickConnectToolStrip, _themeManager.ActiveTheme.Version, _themeManager.ActiveTheme.Theme);
+		    vsToolStripExtender.SetStyle(_externalToolsToolStrip, _themeManager.ActiveTheme.Version, _themeManager.ActiveTheme.Theme);
+		    vsToolStripExtender.SetStyle(_multiSshToolStrip, _themeManager.ActiveTheme.Version, _themeManager.ActiveTheme.Theme);
+		    tsContainer.TopToolStripPanel.BackColor = _themeManager.ActiveTheme.ExtendedPalette.getColor("CommandBarMenuDefault_Background");
+		}
 
         private void frmMain_Shown(object sender, EventArgs e)
         {
@@ -296,7 +341,7 @@ namespace mRemoteNG.UI.Forms
 				}
 			}
 
-            Shutdown.Cleanup(_quickConnectToolStrip, _externalToolsToolStrip, this);
+            Shutdown.Cleanup(_quickConnectToolStrip, _externalToolsToolStrip, _multiSshToolStrip, this);
 									
 			IsClosing = true;
 
@@ -373,17 +418,28 @@ namespace mRemoteNG.UI.Forms
 				            var controlThatWasClicked = FromChildHandle(NativeMethods.WindowFromPoint(MousePosition));
 				            if (controlThatWasClicked != null)
 				            {
-				                if (controlThatWasClicked.CanSelect || controlThatWasClicked is MenuStrip || 
-                                         controlThatWasClicked is ToolStrip || controlThatWasClicked is Crownwood.Magic.Controls.TabControl || 
-                                         controlThatWasClicked is Crownwood.Magic.Controls.InertButton)
+				                if (controlThatWasClicked is TreeView ||
+				                    controlThatWasClicked is ComboBox ||
+				                    controlThatWasClicked is TextBox)
+				                {
+				                    controlThatWasClicked.Focus();
+				                }
+				                else if (controlThatWasClicked.CanSelect ||
+				                         controlThatWasClicked is MenuStrip ||
+				                         controlThatWasClicked is ToolStrip ||
+				                         controlThatWasClicked is Crownwood.Magic.Controls.TabControl ||
+				                         controlThatWasClicked is Crownwood.Magic.Controls.InertButton)
 				                {
 				                    // Simulate a mouse event since one wasn't generated by Windows
-				                    MouseClickSimulator.Click(controlThatWasClicked, MousePosition);
+				                    SimulateClick(controlThatWasClicked);
+				                    controlThatWasClicked.Focus();
+				                }
+				                else
+				                {
+				                    // This handles activations from clicks that did not start a size/move operation
+				                    ActivateConnection();
 				                }
 				            }
-
-				            // This handles activations from clicks that did not start a size/move operation
-				            ActivateConnection();
 				        }
 				        break;
 				    case NativeMethods.WM_WINDOWPOSCHANGED:
@@ -418,7 +474,17 @@ namespace mRemoteNG.UI.Forms
 									
 			base.WndProc(ref m);
 		}
-        
+
+        private void SimulateClick(Control control)
+        {
+            var clientMousePosition = control.PointToClient(MousePosition);
+            var temp_wLow = clientMousePosition.X;
+            var temp_wHigh = clientMousePosition.Y;
+            NativeMethods.SendMessage(control.Handle, NativeMethods.WM_LBUTTONDOWN, (IntPtr)NativeMethods.MK_LBUTTON, (IntPtr)NativeMethods.MAKELPARAM(ref temp_wLow, ref temp_wHigh));
+            clientMousePosition.X = temp_wLow;
+            clientMousePosition.Y = temp_wHigh;
+        }
+
 		private void ActivateConnection()
 		{
 		    var w = pnlDock.ActiveDocument as ConnectionWindow;
@@ -548,10 +614,8 @@ namespace mRemoteNG.UI.Forms
             Windows.TreeForm.Show(pnlDock, DockState.DockLeft);
             Windows.ConfigForm.Show(pnlDock);
             Windows.ConfigForm.DockTo(Windows.TreeForm.Pane, DockStyle.Bottom, -1);
-            Windows.ErrorsForm.Show(pnlDock, DockState.Document);
-
-            Windows.ErrorsForm.Hide();
-            Windows.ScreenshotForm.Hide();
+            Windows.ErrorsForm.Show( pnlDock, DockState.DockBottomAutoHide );  
+            Windows.ScreenshotForm.Hide(); 
 
             pnlDock.Visible = true;
         }
@@ -561,25 +625,19 @@ namespace mRemoteNG.UI.Forms
         public delegate void ClipboardchangeEventHandler();
         public static event ClipboardchangeEventHandler ClipboardChanged
         {
-            add
-            {
-                _clipboardChangedEvent = (ClipboardchangeEventHandler)Delegate.Combine(_clipboardChangedEvent, value);
-            }
-            remove
-            {
-                _clipboardChangedEvent = (ClipboardchangeEventHandler)Delegate.Remove(_clipboardChangedEvent, value);
-            }
+            add => _clipboardChangedEvent = (ClipboardchangeEventHandler)Delegate.Combine(_clipboardChangedEvent, value);
+            remove => _clipboardChangedEvent = (ClipboardchangeEventHandler)Delegate.Remove(_clipboardChangedEvent, value);
         }
 #endregion
 
         private void ViewMenu_Opening(object sender, EventArgs e)
         {
-            viewMenu1.mMenView_DropDownOpening(sender, e);
+            viewMenu.mMenView_DropDownOpening(sender, e);
         }
 
         private void mainFileMenu1_DropDownOpening(object sender, EventArgs e)
         {
-            mainFileMenu1.mMenFile_DropDownOpening(sender, e);
+            fileMenu.mMenFile_DropDownOpening(sender, e);
         }
     }
 }

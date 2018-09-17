@@ -88,6 +88,8 @@ namespace mRemoteNG.Connection.Protocol.RDP
 				}
 			}
 		}
+
+        public bool LoadBalanceInfoUseUtf8 { get; set; }
         #endregion
 
         #region Constructors
@@ -635,7 +637,9 @@ namespace mRemoteNG.Connection.Protocol.RDP
 			}
 			try
 			{
-				_rdpClient.AdvancedSettings2.LoadBalanceInfo = _connectionInfo.LoadBalanceInfo;
+			    _rdpClient.AdvancedSettings2.LoadBalanceInfo = LoadBalanceInfoUseUtf8
+                    ? new AzureLoadBalanceInfoEncoder().Encode(_connectionInfo.LoadBalanceInfo) 
+                    : _connectionInfo.LoadBalanceInfo;
 			}
 			catch (Exception ex)
 			{

@@ -14,7 +14,6 @@ using mRemoteNG.Connection.Protocol.SSH;
 using mRemoteNG.Connection.Protocol.Telnet;
 using mRemoteNG.Connection.Protocol.VNC;
 using mRemoteNG.Container;
-using mRemoteNG.Tools;
 using mRemoteNG.Tree;
 
 
@@ -31,7 +30,7 @@ namespace mRemoteNG.Connection
 	    public ProtocolList OpenConnections { get; protected set; }
 
 	    [Browsable(false)]
-        public bool IsContainer { get; set; }
+        public virtual bool IsContainer { get; set; }
 
 	    [Browsable(false)]
         public bool IsDefault { get; set; }
@@ -51,7 +50,14 @@ namespace mRemoteNG.Connection
 	    #endregion
 
         #region Constructors
-        public ConnectionInfo()
+
+	    public ConnectionInfo()
+			: this(Guid.NewGuid().ToString())
+	    {
+	    }
+
+        public ConnectionInfo(string uniqueId)
+			: base(uniqueId)
 		{
             SetTreeDisplayDefaults();
             SetConnectionDefaults();
@@ -64,12 +70,6 @@ namespace mRemoteNG.Connection
             SetNonBrowsablePropertiesDefaults();
             SetDefaults();
 		}
-			
-		public ConnectionInfo(ContainerInfo parent) : this()
-		{
-			IsContainer = true;
-			parent.AddChild(this);
-		}
         #endregion
 			
         #region Public Methods
@@ -77,9 +77,9 @@ namespace mRemoteNG.Connection
 		{
 		    var newConnectionInfo = new ConnectionInfo();
             newConnectionInfo.CopyFrom(this);
-			newConnectionInfo.ConstantID = MiscTools.CreateConstantID();
 		    newConnectionInfo.Inheritance = Inheritance.Clone();
-			return newConnectionInfo;
+            newConnectionInfo.Inheritance.Parent = newConnectionInfo;
+            return newConnectionInfo;
 		}
 
 	    public void CopyFrom(ConnectionInfo sourceConnectionInfo)
@@ -127,10 +127,18 @@ namespace mRemoteNG.Connection
             return filteredProperties;
         }
 
-	    public virtual void SetParent(ContainerInfo parent)
+	    public virtual IEnumerable<PropertyInfo> GetSerializableProperties()
+	    {
+			var excludedProperties = new[] { "Parent", "Name", "Hostname", "Port", "Inheritance", "OpenConnections",
+				"IsContainer", "IsDefault", "PositionID", "ConstantID", "TreeNode", "IsQuickConnect", "PleaseConnect" };
+
+		    return GetProperties(excludedProperties);
+	    }
+
+	    public virtual void SetParent(ContainerInfo newParent)
 	    {
             RemoveParent();
-            parent?.AddChild(this);
+		    newParent?.AddChild(this);
 	    }
 
         public void RemoveParent()
@@ -162,7 +170,11 @@ namespace mRemoteNG.Connection
         #region Private Methods
         protected override TPropertyType GetPropertyValue<TPropertyType>(string propertyName, TPropertyType value)
         {
-            return ShouldThisPropertyBeInherited(propertyName) ? GetInheritedPropertyValue<TPropertyType>(propertyName) : value;
+            if (!ShouldThisPropertyBeInherited(propertyName))
+                return value;
+
+            var inheritedValue = GetInheritedPropertyValue<TPropertyType>(propertyName);
+            return inheritedValue.Equals(default(TPropertyType)) ? value : inheritedValue;
         }
 
 	    private bool ShouldThisPropertyBeInherited(string propertyName)
@@ -185,15 +197,21 @@ namespace mRemoteNG.Connection
 
         private TPropertyType GetInheritedPropertyValue<TPropertyType>(string propertyName)
         {
-            var connectionInfoType = Parent.GetType();
-            var parentPropertyInfo = connectionInfoType.GetProperty(propertyName);
-            if (parentPropertyInfo == null)
-                return default(TPropertyType); // shouldn't get here...
-            var parentPropertyValue = (TPropertyType)parentPropertyInfo.GetValue(Parent, null);
+            try
+            {
+                var connectionInfoType = Parent.GetType();
+                var parentPropertyInfo = connectionInfoType.GetProperty(propertyName);
+                if (parentPropertyInfo == null)
+                    return default(TPropertyType); // shouldn't get here...
+                var parentPropertyValue = (TPropertyType)parentPropertyInfo.GetValue(Parent, null);
 
-            return parentPropertyValue;
-
-            
+                return parentPropertyValue;
+            }
+            catch (Exception e)
+            {
+                Runtime.MessageCollector.AddExceptionStackTrace($"Error retrieving inherited property '{propertyName}'", e);
+                return default(TPropertyType);
+            }
         }
 
 		private static int GetDefaultPort(ProtocolType protocol)
@@ -299,7 +317,6 @@ namespace mRemoteNG.Connection
 
         private void SetMiscDefaults()
         {
-            ConstantID = MiscTools.CreateConstantID();
             PreExtApp = Settings.Default.ConDefaultPreExtApp;
             PostExtApp = Settings.Default.ConDefaultPostExtApp;
             MacAddress = Settings.Default.ConDefaultMacAddress;

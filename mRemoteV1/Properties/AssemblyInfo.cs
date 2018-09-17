@@ -14,7 +14,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyDescription("Multi-protocol remote connections manager")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("mRemoteNG")]
-[assembly: AssemblyCopyright("Copyright © 2017 mRemoteNG Dev Team; 2010-2013 Riley McArdle; 2007-2009 Felix Deimel, [2017 Keith Roberts]")]
+[assembly: AssemblyCopyright("Copyright © 2018 mRemoteNG Dev Team; 2010-2013 Riley McArdle; 2007-2009 Felix Deimel, [2017 Keith Roberts]")]
 [assembly: AssemblyTrademark("")]
 
 [assembly: ComVisible(false)]
@@ -33,5 +33,5 @@ using System.Runtime.InteropServices;
 // by using the '*' as shown below:
 // <Assembly: AssemblyVersion("1.0.*")>
 
-[assembly: AssemblyVersion("88.76.0.*")]
+[assembly: AssemblyVersion("88.77.0.*")]
 [assembly: NeutralResourcesLanguage("en")]

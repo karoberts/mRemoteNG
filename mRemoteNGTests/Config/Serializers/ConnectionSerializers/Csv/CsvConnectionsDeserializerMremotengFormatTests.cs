@@ -5,7 +5,7 @@ using mRemoteNG.Config.Serializers.Csv;
 using mRemoteNG.Connection;
 using mRemoteNG.Connection.Protocol;
 using mRemoteNG.Connection.Protocol.Http;
-using mRemoteNG.Connection.Protocol.ICA;
+//using mRemoteNG.Connection.Protocol.ICA;
 using mRemoteNG.Connection.Protocol.RDP;
 using mRemoteNG.Connection.Protocol.VNC;
 using mRemoteNG.Credential;
@@ -96,7 +96,7 @@ namespace mRemoteNGTests.Config.Serializers.ConnectionSerializers.Csv
                 UseConsoleSession = true,
                 UseCredSsp = true,
                 RenderingEngine = HTTPBase.RenderingEngine.Gecko,
-                ICAEncryptionStrength = IcaProtocol.EncryptionStrength.Encr40Bit,
+                //ICAEncryptionStrength = IcaProtocol.EncryptionStrength.Encr40Bit,
                 RDPAuthenticationLevel = RdpProtocol.AuthenticationLevel.WarnOnFailedAuth,
                 Colors = RdpProtocol.RDPColors.Colors16Bit,
                 Resolution = RdpProtocol.RDPResolutions.Res1366x768,

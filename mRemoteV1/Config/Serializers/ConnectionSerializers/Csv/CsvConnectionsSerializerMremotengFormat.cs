@@ -102,7 +102,7 @@ namespace mRemoteNG.Config.Serializers.Csv
                 .Append(FormatForCsv(con.UseConsoleSession))
                 .Append(FormatForCsv(con.UseCredSsp))
                 .Append(FormatForCsv(con.RenderingEngine))
-                .Append(FormatForCsv(con.ICAEncryptionStrength))
+                //.Append(FormatForCsv(con.ICAEncryptionStrength))
                 .Append(FormatForCsv(con.RDPAuthenticationLevel))
                 .Append(FormatForCsv(con.LoadBalanceInfo))
                 .Append(FormatForCsv(con.Colors))

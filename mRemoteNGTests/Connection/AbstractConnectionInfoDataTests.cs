@@ -142,6 +142,7 @@ namespace mRemoteNGTests.Connection
             Assert.That(wasCalled, Is.True);
         }
 
+        /*
         [Test]
         public void IcaEncryptionNotifiesOnValueChange()
         {
@@ -150,6 +151,7 @@ namespace mRemoteNGTests.Connection
             _testAbstractConnectionInfoData.ICAEncryptionStrength = IcaProtocol.EncryptionStrength.Encr128BitLogonOnly;
             Assert.That(wasCalled, Is.True);
         }
+        */
 
         [Test]
         public void UseConsoleSessionNotifiesOnValueChange()

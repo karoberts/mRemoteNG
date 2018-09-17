@@ -144,12 +144,13 @@ namespace mRemoteNG.Config.Serializers.Csv
                     connectionRecord.RenderingEngine = value;
             }
 
+            /*
             if (headers.Contains("ICAEncryptionStrength"))
             {
                 IcaProtocol.EncryptionStrength value;
                 if (Enum.TryParse(connectionCsv[headers.IndexOf("ICAEncryptionStrength")], out value))
                     connectionRecord.ICAEncryptionStrength = value;
-            }
+            }*/
 
             if (headers.Contains("RDPAuthenticationLevel"))
             {

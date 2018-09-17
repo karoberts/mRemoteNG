@@ -198,7 +198,7 @@ namespace mRemoteNGTests.UI.Window.ConfigWindowTests
                         nameof(ConnectionInfo.Username),
                         nameof(ConnectionInfo.Password),
                         nameof(ConnectionInfo.Domain),
-                        nameof(ConnectionInfo.ICAEncryptionStrength),
+                        //nameof(ConnectionInfo.ICAEncryptionStrength),
                         nameof(ConnectionInfo.Resolution),
                         nameof(ConnectionInfo.Colors),
                         nameof(ConnectionInfo.CacheBitmaps),

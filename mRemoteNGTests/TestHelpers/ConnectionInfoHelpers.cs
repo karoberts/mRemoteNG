@@ -72,7 +72,7 @@ namespace mRemoteNGTests.TestHelpers
 				
 				// enums
 				Colors = RandomEnum<RdpProtocol.RDPColors>(),
-				ICAEncryptionStrength = RandomEnum<IcaProtocol.EncryptionStrength> (),
+				//ICAEncryptionStrength = RandomEnum<IcaProtocol.EncryptionStrength> (),
 				Protocol = RandomEnum<ProtocolType>(),
 				RDGatewayUsageMethod = RandomEnum<RdpProtocol.RDGatewayUsageMethod>(),
 				RDGatewayUseConnectionCredentials = RandomEnum<RdpProtocol.RDGatewayUseConnectionCredentials>(),

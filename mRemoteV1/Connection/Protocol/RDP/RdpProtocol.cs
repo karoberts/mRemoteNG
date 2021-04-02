@@ -41,10 +41,17 @@ namespace mRemoteNG.Connection.Protocol.RDP
                 {
                     return _rdpClient.AdvancedSettings2.SmartSizing;
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
-                    ReconnectForResize();
-                    return _rdpClient.AdvancedSettings2.SmartSizing;
+					try
+					{
+						ReconnectForResize();
+						return _rdpClient.AdvancedSettings2.SmartSizing;
+					}
+					catch (Exception)
+					{
+						return true;
+					}
                 }
 			}
             private set

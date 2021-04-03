@@ -39,14 +39,14 @@ namespace mRemoteNG.Connection.Protocol.RDP
 			{
                 try
                 {
-                    return _rdpClient.AdvancedSettings2.SmartSizing;
+                    return _rdpClient?.AdvancedSettings2?.SmartSizing ?? true;
                 }
                 catch (Exception)
                 {
 					try
 					{
 						ReconnectForResize();
-						return _rdpClient.AdvancedSettings2.SmartSizing;
+                        return _rdpClient?.AdvancedSettings2?.SmartSizing ?? true;
 					}
 					catch (Exception)
 					{

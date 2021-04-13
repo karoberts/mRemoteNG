@@ -3,6 +3,7 @@ using System.Collections;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Threading;
 using System.Windows.Forms;
 using AxMSTSCLib;
@@ -310,33 +311,41 @@ namespace mRemoteNG.Connection.Protocol.RDP
 
         private bool DoResize_KR()
         {
-            if (!SmartSize)
-            {
-                Control.Size = InterfaceControl.Size;
-                Control.Location = InterfaceControl.Location;
-                return true;
-            }
+			try
+			{
+				if (!SmartSize)
+				{
+					Control.Size = InterfaceControl.Size;
+					Control.Location = InterfaceControl.Location;
+					return true;
+				}
 
-            if (Control.FindForm().WindowState == FormWindowState.Minimized)
-                return true;
+				if (Control.FindForm()?.WindowState == FormWindowState.Minimized)
+					return true;
 
-            var resolution = GetResolutionRectangle(_connectionInfo.Resolution);
-            double ratioW = InterfaceControl.Parent.Size.Width / (double)resolution.Width;
-            double ratioH = InterfaceControl.Parent.Size.Height / (double)resolution.Height;
+				var resolution = GetResolutionRectangle(_connectionInfo.Resolution);
+				double ratioW = InterfaceControl.Parent.Size.Width / (double)resolution.Width;
+				double ratioH = InterfaceControl.Parent.Size.Height / (double)resolution.Height;
 
-            double scale = Math.Min(ratioW, ratioH);
+				double scale = Math.Min(ratioW, ratioH);
 
-            if (scale > 1.0d)
-                return true;
+				if (scale > 1.0d)
+					return true;
 
-            Control.Size = new Size((int)(resolution.Width * scale), (int)(resolution.Height * scale));
+				Control.Size = new Size((int)(resolution.Width * scale), (int)(resolution.Height * scale));
 
-            var parentRect = Control.Parent.ClientRectangle;
+				var parentRect = Control.Parent.ClientRectangle;
 
-            Control.Left = (parentRect.Width - Control.Width) / 2;
-            Control.Top = (parentRect.Height - Control.Height) / 2;
+				Control.Left = (parentRect.Width - Control.Width) / 2;
+				Control.Top = (parentRect.Height - Control.Height) / 2;
 
-            return true;
+				return true;
+			}
+			catch (Exception e)
+			{
+				File.AppendAllText(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "mRemoteNG-errors.txt"), e.StackTrace);
+				return true;
+			}
         }
 				
 		private void ReconnectForResize()

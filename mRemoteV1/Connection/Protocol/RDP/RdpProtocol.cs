@@ -343,7 +343,8 @@ namespace mRemoteNG.Connection.Protocol.RDP
 			}
 			catch (Exception e)
 			{
-				File.AppendAllText(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "mRemoteNG-errors.txt"), e.StackTrace);
+				File.AppendAllText(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "mRemoteNG-errors.txt"), 
+					$"{e.GetType().FullName}: {e.Message}: {e.StackTrace}");
 				return true;
 			}
         }

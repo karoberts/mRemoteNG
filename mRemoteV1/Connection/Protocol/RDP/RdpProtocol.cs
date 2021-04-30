@@ -323,6 +323,9 @@ namespace mRemoteNG.Connection.Protocol.RDP
 				if (Control.FindForm()?.WindowState == FormWindowState.Minimized)
 					return true;
 
+				if (InterfaceControl?.Parent?.Size == null)
+					return true;
+
 				var resolution = GetResolutionRectangle(_connectionInfo.Resolution);
 				double ratioW = InterfaceControl.Parent.Size.Width / (double)resolution.Width;
 				double ratioH = InterfaceControl.Parent.Size.Height / (double)resolution.Height;

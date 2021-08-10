@@ -5,9 +5,9 @@
     <TargetFramework>net6.0-windows</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
     <ApplicationIcon>Icons\mRemoteNG.ico</ApplicationIcon>
-    <Version>1.77.3</Version>
+    <Version>88.77.3</Version>
     <Description>Multi-protocol remote connections manager</Description>
-    <Copyright>2022 mRemoteNG Dev Team, 2010-2013 Riley McArdle, 2007-2009 Felix Deimel</Copyright>
+    <Copyright>2022 mRemoteNG Dev Team, 2010-2013 Riley McArdle, 2007-2009 Felix Deimel, 2021-24 Keith Roberts</Copyright>
     <PackageLicenseFile>COPYING.TXT</PackageLicenseFile>
     <PackageProjectUrl>https://mremoteng.org/</PackageProjectUrl>
     <Platforms>x64</Platforms>

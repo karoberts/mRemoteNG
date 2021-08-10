@@ -29,6 +29,8 @@ namespace mRemoteNG.Connection.Protocol.RDP
             protected set
             {
                 base.SmartSize = value;
+                RdpClient8.AdvancedSettings2.SmartSizing = value;
+                DoResizeControl();
                 DoResizeClient();
             }
         }
@@ -41,6 +43,17 @@ namespace mRemoteNG.Connection.Protocol.RDP
                 base.Fullscreen = value;
                 DoResizeClient();
             }
+        }
+
+        public override bool Connect()
+        {
+            RdpClient8.AdvancedSettings2.SmartSizing = true;
+            if (base.Connect())
+            {
+                DoResizeControl();
+                return true;
+            }
+            return false;
         }
 
         public override void ResizeBegin(object sender, EventArgs e)
@@ -80,9 +93,11 @@ namespace mRemoteNG.Connection.Protocol.RDP
             if (!InterfaceControl.Info.AutomaticResize)
                 return;
 
+            /*
             if (!(InterfaceControl.Info.Resolution == RDPResolutions.FitToWindow ||
                   InterfaceControl.Info.Resolution == RDPResolutions.Fullscreen))
                 return;
+            */
 
             if (SmartSize)
                 return;
@@ -108,6 +123,7 @@ namespace mRemoteNG.Connection.Protocol.RDP
 
         private bool DoResizeControl()
         {
+            /*
             Control.Location = InterfaceControl.Location;
             // kmscode - this doesn't look right to me. But I'm not aware of any functionality issues with this currently...
             if (!(Control.Size == InterfaceControl.Size) && !(InterfaceControl.Size == Size.Empty))
@@ -119,11 +135,55 @@ namespace mRemoteNG.Connection.Protocol.RDP
             {
                 return false;
             }
+            */
+            return DoResize_KR();
         }
-
+        
         protected virtual void UpdateSessionDisplaySettings(uint width, uint height)
         {
             RdpClient8.Reconnect(width, height);
+        }        
+
+        private bool DoResize_KR()
+        {
+            if (!SmartSize)
+            {
+                Control.Size = InterfaceControl.Size;
+                Control.Location = InterfaceControl.Location;
+                return true;
+            }
+            if (Control.FindForm().WindowState == FormWindowState.Minimized)
+                return true;
+            var resolution = GetResolutionRectangle(connectionInfo.Resolution);
+            double ratioW = InterfaceControl.Parent.Size.Width / (double)resolution.Width;
+            double ratioH = InterfaceControl.Parent.Size.Height / (double)resolution.Height;
+            double scale = Math.Min(ratioW, ratioH);
+            if (scale > 1.0d)
+                return true;
+            Control.Size = new Size((int)(resolution.Width * scale), (int)(resolution.Height * scale));
+            var parentRect = Control.Parent.ClientRectangle;
+            Control.Left = (parentRect.Width - Control.Width) / 2;
+            Control.Top = (parentRect.Height - Control.Height) / 2;
+            DoResizeClient();
+
+            return true;
         }
+
+		public static Rectangle GetResolutionRectangle(RDPResolutions resolution)
+		{
+			string[] resolutionParts = null;
+			if (resolution != RDPResolutions.FitToWindow & resolution != RDPResolutions.Fullscreen & resolution != RDPResolutions.SmartSize)
+			{
+				resolutionParts = resolution.ToString().Replace("Res", "").Split('x');
+			}
+			if (resolutionParts == null || resolutionParts.Length != 2)
+			{
+				return new Rectangle(0, 0, 0, 0);
+			}
+			else
+			{
+                return new Rectangle(0, 0, Convert.ToInt32(resolutionParts[0]), Convert.ToInt32(resolutionParts[1]));
+			}
+		}
     }
 }

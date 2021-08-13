@@ -47,6 +47,7 @@ namespace mRemoteNG.Connection.Protocol.RDP
 
         public override bool Connect()
         {
+            Control.Parent.BackColor = Color.FromArgb(0xFF, 0x10, 0x10, 0x10);
             RdpClient8.AdvancedSettings2.SmartSizing = true;
             if (base.Connect())
             {
